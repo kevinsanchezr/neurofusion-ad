@@ -1,0 +1,44 @@
+experiment:
+  name: ds007561_mri_only_smoke
+  output_dir: reports/experiments/ds007561_mri_only_smoke
+  seed: 42
+
+data:
+  dataset_root: data/raw/ds007561
+  participants_file: null
+  session: ses-01
+  label_column: diagnosis
+  modalities:
+    mri_suffix: T1w.nii.gz
+    pet_suffix: .nii.gz
+  image_size: [128, 128, 128]
+  cache_rate: 0.0
+  num_workers: 0
+  intensity_norm: zscore
+  registration:
+    enabled: false
+    target: mri
+
+training:
+  task: classification
+  model_name: mri_only
+  num_classes: 3
+  batch_size: 1
+  epochs: 3
+  lr: 0.0001
+  weight_decay: 0.0001
+  mixed_precision: false
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  device: cpu
+  use_class_weights: true
+
+evaluation:
+  average: macro
+
+representation:
+  embedding_dim: 128
+
+interpretability:
+  target_layer: encoder.layer4

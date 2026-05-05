@@ -140,3 +140,4 @@ Deferred for future iterations:
 - `participants.tsv` label normalization currently maps common variants for `Control`, `MCI`, and `Alzheimer`.
 - The code is designed to be reusable across BIDS datasets with the same modality semantics, not only `ds007561`.
 - Raw dataset files under `data/raw/` are intentionally ignored so the public repository stays lightweight and useful.
+- `ds007561` currently contains only one `AD` subject, so this repository should be treated as a technical proof-of-concept and exploratory multimodal pipeline, not as a clinically reliable Alzheimer's classifier.
