@@ -1,0 +1,10 @@
+{
+  "figures": [
+    "reports/figures/latent_space/multimodal_pca.png",
+    "reports/figures/latent_space/multimodal_tsne.png",
+    "reports/figures/latent_space/mri_only_pca.png",
+    "reports/figures/latent_space/mri_only_tsne.png",
+    "reports/figures/latent_space/pet_only_pca.png",
+    "reports/figures/latent_space/pet_only_tsne.png"
+  ]
+}

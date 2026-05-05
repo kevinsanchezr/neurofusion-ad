@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="90" y="42" font-size="28" font-family="Arial, sans-serif" font-weight="700" fill="#0f172a">ds007561 Smoke-Test Model Comparison</text>
+<text x="90" y="66" font-size="14" font-family="Arial, sans-serif" fill="#334155">Balanced accuracy and macro F1 across multimodal, MRI-only, and PET-only baselines</text>
+<line x1="90" y1="670.00" x2="1160" y2="670.00" stroke="#cbd5e1" stroke-width="1"/>
+<text x="78" y="675.00" text-anchor="end" font-size="12" font-family="Arial, sans-serif" fill="#475569">0.0</text>
+<line x1="90" y1="552.00" x2="1160" y2="552.00" stroke="#cbd5e1" stroke-width="1"/>
+<text x="78" y="557.00" text-anchor="end" font-size="12" font-family="Arial, sans-serif" fill="#475569">0.2</text>
+<line x1="90" y1="434.00" x2="1160" y2="434.00" stroke="#cbd5e1" stroke-width="1"/>
+<text x="78" y="439.00" text-anchor="end" font-size="12" font-family="Arial, sans-serif" fill="#475569">0.4</text>
+<line x1="90" y1="316.00" x2="1160" y2="316.00" stroke="#cbd5e1" stroke-width="1"/>
+<text x="78" y="321.00" text-anchor="end" font-size="12" font-family="Arial, sans-serif" fill="#475569">0.6</text>
+<line x1="90" y1="198.00" x2="1160" y2="198.00" stroke="#cbd5e1" stroke-width="1"/>
+<text x="78" y="203.00" text-anchor="end" font-size="12" font-family="Arial, sans-serif" fill="#475569">0.8</text>
+<line x1="90" y1="80.00" x2="1160" y2="80.00" stroke="#cbd5e1" stroke-width="1"/>
+<text x="78" y="85.00" text-anchor="end" font-size="12" font-family="Arial, sans-serif" fill="#475569">1.0</text>
+<line x1="90" y1="670" x2="1160" y2="670" stroke="#0f172a" stroke-width="2"/>
+<line x1="90" y1="80" x2="90" y2="670" stroke="#0f172a" stroke-width="2"/>
+<rect x="114.97" y="479.89" width="36.80" height="190.11" fill="#2563eb" rx="4" ry="4"/>
+<text x="133.37" y="471.89" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.32</text>
+<rect x="157.77" y="466.78" width="36.80" height="203.22" fill="#0f766e" rx="4" ry="4"/>
+<text x="176.17" y="458.78" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.34</text>
+<rect x="200.57" y="479.89" width="36.80" height="190.11" fill="#d97706" rx="4" ry="4"/>
+<text x="218.97" y="471.89" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.32</text>
+<text x="179.17" y="718" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" fill="#334155">Train Balanced Acc.</text>
+<rect x="293.30" y="375.00" width="36.80" height="295.00" fill="#2563eb" rx="4" ry="4"/>
+<text x="311.70" y="367.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.50</text>
+<rect x="336.10" y="375.00" width="36.80" height="295.00" fill="#0f766e" rx="4" ry="4"/>
+<text x="354.50" y="367.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.50</text>
+<rect x="378.90" y="375.00" width="36.80" height="295.00" fill="#d97706" rx="4" ry="4"/>
+<text x="397.30" y="367.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.50</text>
+<text x="357.50" y="718" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" fill="#334155">Val Balanced Acc.</text>
+<rect x="471.63" y="375.00" width="36.80" height="295.00" fill="#2563eb" rx="4" ry="4"/>
+<text x="490.03" y="367.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.50</text>
+<rect x="514.43" y="375.00" width="36.80" height="295.00" fill="#0f766e" rx="4" ry="4"/>
+<text x="532.83" y="367.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.50</text>
+<rect x="557.23" y="375.00" width="36.80" height="295.00" fill="#d97706" rx="4" ry="4"/>
+<text x="575.63" y="367.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.50</text>
+<text x="535.83" y="718" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" fill="#334155">Test Balanced Acc.</text>
+<rect x="649.97" y="525.78" width="36.80" height="144.22" fill="#2563eb" rx="4" ry="4"/>
+<text x="668.37" y="517.78" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.24</text>
+<rect x="692.77" y="476.14" width="36.80" height="193.86" fill="#0f766e" rx="4" ry="4"/>
+<text x="711.17" y="468.14" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.33</text>
+<rect x="735.57" y="525.78" width="36.80" height="144.22" fill="#d97706" rx="4" ry="4"/>
+<text x="753.97" y="517.78" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.24</text>
+<text x="714.17" y="718" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" fill="#334155">Train Macro F1</text>
+<rect x="828.30" y="434.00" width="36.80" height="236.00" fill="#2563eb" rx="4" ry="4"/>
+<text x="846.70" y="426.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.40</text>
+<rect x="871.10" y="434.00" width="36.80" height="236.00" fill="#0f766e" rx="4" ry="4"/>
+<text x="889.50" y="426.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.40</text>
+<rect x="913.90" y="434.00" width="36.80" height="236.00" fill="#d97706" rx="4" ry="4"/>
+<text x="932.30" y="426.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.40</text>
+<text x="892.50" y="718" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" fill="#334155">Val Macro F1</text>
+<rect x="1006.63" y="434.00" width="36.80" height="236.00" fill="#2563eb" rx="4" ry="4"/>
+<text x="1025.03" y="426.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.40</text>
+<rect x="1049.43" y="434.00" width="36.80" height="236.00" fill="#0f766e" rx="4" ry="4"/>
+<text x="1067.83" y="426.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.40</text>
+<rect x="1092.23" y="434.00" width="36.80" height="236.00" fill="#d97706" rx="4" ry="4"/>
+<text x="1110.63" y="426.00" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" fill="#0f172a">0.40</text>
+<text x="1070.83" y="718" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" fill="#334155">Test Macro F1</text>
+<rect x="840" y="30" width="14" height="14" fill="#2563eb" rx="3" ry="3"/>
+<text x="862" y="42" font-size="13" font-family="Arial, sans-serif" fill="#0f172a">MRI-only</text>
+<rect x="840" y="54" width="14" height="14" fill="#0f766e" rx="3" ry="3"/>
+<text x="862" y="66" font-size="13" font-family="Arial, sans-serif" fill="#0f172a">Multimodal</text>
+<rect x="840" y="78" width="14" height="14" fill="#d97706" rx="3" ry="3"/>
+<text x="862" y="90" font-size="13" font-family="Arial, sans-serif" fill="#0f172a">PET-only</text>
+</svg>

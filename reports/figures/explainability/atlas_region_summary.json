@@ -1,0 +1,26 @@
+{
+  "status": "skipped",
+  "reason": "Atlas-guided mapping requires local atlas files and registered subject images in atlas space.",
+  "atlas_image": null,
+  "atlas_labels": null,
+  "subjects": [
+    {
+      "subject_id": "sub-08",
+      "true_label": "MCI",
+      "predicted_label": "Control",
+      "status": "atlas_mapping_skipped"
+    },
+    {
+      "subject_id": "sub-11",
+      "true_label": "Control",
+      "predicted_label": "Control",
+      "status": "atlas_mapping_skipped"
+    },
+    {
+      "subject_id": "sub-15",
+      "true_label": "Control",
+      "predicted_label": "Control",
+      "status": "atlas_mapping_skipped"
+    }
+  ]
+}
