@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -10,11 +11,12 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
-import nibabel as nib
+from matplotlib.patches import Ellipse
 import numpy as np
 import torch
 import torch.nn.functional as F
 from monai.data import DataLoader, Dataset
+from scipy.ndimage import gaussian_filter
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
@@ -34,6 +36,14 @@ LABEL_COLORS = {
     "Control": "#2563eb",
     "MCI": "#d97706",
     "AD": "#dc2626",
+}
+FIGURE_DPI = 320
+LATENT_FIGSIZE = (8.8, 6.8)
+GRADCAM_FIGSIZE = (11.5, 7.4)
+GRADCAM_SLICE_FRACTIONS = {
+    "Sagittal": 0.50,
+    "Coronal": 0.52,
+    "Axial": 0.58,
 }
 EXPERIMENTS = {
     "multimodal": {
@@ -72,6 +82,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     device = _resolve_device(args.device)
+    _configure_matplotlib()
     embedding_results: dict[str, dict[str, Any]] = {}
 
     for modality, spec in EXPERIMENTS.items():
@@ -103,6 +114,27 @@ def _resolve_device(device_name: str) -> torch.device:
     if device_name == "auto":
         device_name = "cuda" if torch.cuda.is_available() else "cpu"
     return torch.device(device_name)
+
+
+def _configure_matplotlib() -> None:
+    plt.style.use("seaborn-v0_8-white")
+    matplotlib.rcParams.update(
+        {
+            "figure.dpi": FIGURE_DPI,
+            "savefig.dpi": FIGURE_DPI,
+            "font.family": "DejaVu Sans",
+            "font.size": 11,
+            "axes.titlesize": 16,
+            "axes.labelsize": 12,
+            "axes.titleweight": "semibold",
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "legend.frameon": False,
+            "legend.fontsize": 10,
+            "xtick.labelsize": 10,
+            "ytick.labelsize": 10,
+        }
+    )
 
 
 def _extract_and_save_embeddings(
@@ -266,38 +298,43 @@ def _plot_latent_projection(
     svg_output_path: Path,
     axis_labels: tuple[str, str],
 ) -> None:
-    fig, ax = plt.subplots(figsize=(10, 8), dpi=180)
+    fig, ax = plt.subplots(figsize=LATENT_FIGSIZE, dpi=FIGURE_DPI)
+    coords = np.asarray(coordinates, dtype=float)
     for label_name in LABEL_NAMES:
         mask = np.asarray([name == label_name for name in labels], dtype=bool)
         if not mask.any():
             continue
+        class_coords = coords[mask]
         ax.scatter(
-            coordinates[mask, 0],
-            coordinates[mask, 1],
-            s=120,
-            alpha=0.85,
+            class_coords[:, 0],
+            class_coords[:, 1],
+            s=130,
+            alpha=0.92,
             color=LABEL_COLORS[label_name],
-            edgecolors="white",
-            linewidths=0.8,
+            edgecolors="#ffffff",
+            linewidths=1.0,
             label=label_name,
+            zorder=4,
         )
+        _draw_class_boundary(ax, class_coords, LABEL_COLORS[label_name])
 
-    ax.set_title(title, fontsize=18, weight="bold", pad=16)
+    ax.set_title(title, fontsize=17, pad=18)
     ax.text(
         0.0,
         1.02,
         subtitle,
         transform=ax.transAxes,
-        fontsize=11,
+        fontsize=10.5,
         color="#475569",
     )
     ax.set_xlabel(axis_labels[0], fontsize=12)
     ax.set_ylabel(axis_labels[1], fontsize=12)
-    ax.grid(True, alpha=0.25)
-    ax.legend(title="Clinical Label", frameon=True)
-    fig.tight_layout()
-    fig.savefig(output_path, bbox_inches="tight")
-    fig.savefig(svg_output_path, bbox_inches="tight")
+    ax.grid(True, alpha=0.12, linewidth=0.8)
+    ax.set_facecolor("#fcfcfd")
+    ax.legend(title="Clinical Label", bbox_to_anchor=(1.02, 1.0), loc="upper left")
+    fig.tight_layout(rect=(0, 0, 0.84, 1))
+    fig.savefig(output_path, bbox_inches="tight", facecolor="white")
+    fig.savefig(svg_output_path, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
 
@@ -310,8 +347,15 @@ def _generate_multimodal_gradcam(
     atlas_labels: str | None,
 ) -> None:
     output_dir = ensure_dir("reports/figures/explainability")
+    figure_manifest: dict[str, Any] = {"selected_subjects": []}
     splits = create_data_splits(config)
-    selected_samples = _select_gradcam_samples(splits, max_subjects=max_subjects)
+    selected_samples = _select_gradcam_samples(
+        config=config,
+        splits=splits,
+        checkpoint_path=checkpoint_path,
+        device=device,
+        max_subjects=max_subjects,
+    )
     dataloader = _build_inference_dataloader(selected_samples, config)
 
     model = build_model(
@@ -338,9 +382,28 @@ def _generate_multimodal_gradcam(
         pet = batch["pet"].to(device)
         logits = model(mri, pet)
         target_class = int(logits.argmax(dim=1).item())
+        probabilities = torch.softmax(logits, dim=1)
+        confidence = float(probabilities[0, target_class].item())
 
-        mri_heatmap = _upsample_heatmap(mri_cam.generate(logits, target_class).heatmap, mri.shape[2:])
-        pet_heatmap = _upsample_heatmap(pet_cam.generate(logits, target_class).heatmap, pet.shape[2:])
+        mri_volume_np = mri.detach().cpu()[0, 0].numpy()
+        pet_volume_np = pet.detach().cpu()[0, 0].numpy()
+        brain_soft_mask = _build_brain_soft_mask(mri_volume_np)
+        mri_heatmap = _upsample_heatmap(
+            _refine_heatmap(
+                mri_cam.generate(logits, target_class).heatmap,
+                brain_soft_mask=brain_soft_mask,
+                spatial_size=mri.shape[2:],
+            ),
+            mri.shape[2:],
+        )
+        pet_heatmap = _upsample_heatmap(
+            _refine_heatmap(
+                pet_cam.generate(logits, target_class).heatmap,
+                brain_soft_mask=brain_soft_mask,
+                spatial_size=pet.shape[2:],
+            ),
+            pet.shape[2:],
+        )
 
         subject_id = batch["subject_id"][0]
         true_label = batch["label_name"][0]
@@ -349,14 +412,26 @@ def _generate_multimodal_gradcam(
         svg_path = output_dir / f"{subject_id}_multimodal_gradcam.svg"
         _plot_gradcam_subject(
             subject_id=subject_id,
-            mri_volume=mri.detach().cpu()[0, 0].numpy(),
-            pet_volume=pet.detach().cpu()[0, 0].numpy(),
+            mri_volume=mri_volume_np,
+            pet_volume=pet_volume_np,
             mri_heatmap=mri_heatmap,
             pet_heatmap=pet_heatmap,
             true_label=true_label,
             pred_label=pred_label,
+            confidence=confidence,
             output_path=figure_path,
             svg_output_path=svg_path,
+        )
+        figure_manifest["selected_subjects"].append(
+            {
+                "subject_id": subject_id,
+                "true_label": true_label,
+                "predicted_label": pred_label,
+                "confidence": confidence,
+                "selection_reason": "correct_prediction" if pred_label == true_label else "fallback_prediction",
+                "figure_png": str(figure_path),
+                "figure_svg": str(svg_path),
+            }
         )
         atlas_summary["subjects"].append(
             {
@@ -367,24 +442,97 @@ def _generate_multimodal_gradcam(
             }
         )
 
+    write_json(output_dir / "figure_selection_manifest.json", figure_manifest)
     write_json(output_dir / "atlas_region_summary.json", atlas_summary)
 
 
 def _select_gradcam_samples(
-    splits: dict[str, list[dict[str, Any]]], max_subjects: int
+    config: dict[str, Any],
+    splits: dict[str, list[dict[str, Any]]],
+    checkpoint_path: Path,
+    device: torch.device,
+    max_subjects: int,
 ) -> list[dict[str, Any]]:
-    selected: list[dict[str, Any]] = []
+    candidates = _rank_multimodal_samples(config, splits, checkpoint_path, device)
+    correct = [sample for sample in candidates if sample["predicted_label"] == sample["label_name"]]
+    fallback = [sample for sample in candidates if sample["predicted_label"] != sample["label_name"]]
+    chosen = (correct + fallback)[:max_subjects]
+    return [{**sample["sample"], "split": sample["split"]} for sample in chosen]
+
+
+def _rank_multimodal_samples(
+    config: dict[str, Any],
+    splits: dict[str, list[dict[str, Any]]],
+    checkpoint_path: Path,
+    device: torch.device,
+) -> list[dict[str, Any]]:
+    model = build_model(
+        model_name=config["training"]["model_name"],
+        embedding_dim=config["representation"]["embedding_dim"],
+        num_classes=config["training"]["num_classes"],
+    )
+    model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    model.to(device)
+    model.eval()
+
+    ranked: list[dict[str, Any]] = []
     for split_name in ("test", "val", "train"):
-        for sample in splits[split_name]:
-            selected.append({**sample, "split": split_name})
-            if len(selected) >= max_subjects:
-                return selected
-    return selected
+        dataset_samples = [{**sample, "split": split_name} for sample in splits[split_name]]
+        dataloader = _build_inference_dataloader(dataset_samples, config)
+        for sample, batch in zip(dataset_samples, dataloader, strict=True):
+            with torch.no_grad():
+                logits = model(batch["mri"].to(device), batch["pet"].to(device))
+                probabilities = torch.softmax(logits, dim=1)
+            predicted_index = int(probabilities.argmax(dim=1).item())
+            confidence = float(probabilities[0, predicted_index].item())
+            ranked.append(
+                {
+                    "sample": sample,
+                    "split": split_name,
+                    "label_name": batch["label_name"][0],
+                    "predicted_label": LABEL_NAMES[predicted_index],
+                    "confidence": confidence,
+                }
+            )
+    ranked.sort(
+        key=lambda item: (
+            item["predicted_label"] != item["label_name"],
+            -item["confidence"],
+            item["split"] != "test",
+            item["split"] != "val",
+            item["sample"]["subject_id"],
+        )
+    )
+    return ranked
 
 
 def _upsample_heatmap(heatmap: torch.Tensor, spatial_size: torch.Size) -> np.ndarray:
     upsampled = F.interpolate(heatmap, size=tuple(spatial_size), mode="trilinear", align_corners=False)
     return upsampled.detach().cpu()[0, 0].numpy()
+
+
+def _refine_heatmap(
+    heatmap: torch.Tensor,
+    brain_soft_mask: np.ndarray,
+    spatial_size: torch.Size,
+) -> torch.Tensor:
+    pooled = F.avg_pool3d(heatmap, kernel_size=3, stride=1, padding=1)
+    upsampled = F.interpolate(pooled, size=tuple(spatial_size), mode="trilinear", align_corners=False)
+    heatmap_np = upsampled.detach().cpu()[0, 0].numpy()
+    heatmap_np = np.maximum(heatmap_np, 0.0)
+    heatmap_np = gaussian_filter(heatmap_np, sigma=1.2)
+    heatmap_np *= brain_soft_mask
+    in_brain = heatmap_np[brain_soft_mask > 0.05]
+    if in_brain.size > 0:
+        threshold = float(np.percentile(in_brain, 83.0))
+        heatmap_np = np.where(heatmap_np >= threshold, heatmap_np, 0.0)
+    heatmap_np = gaussian_filter(heatmap_np, sigma=0.9)
+    heatmap_np *= brain_soft_mask
+    max_value = float(heatmap_np.max())
+    if max_value > 0:
+        heatmap_np = heatmap_np / max_value
+    refined = torch.from_numpy(heatmap_np).to(device=heatmap.device, dtype=heatmap.dtype)
+    return refined.unsqueeze(0).unsqueeze(0)
 
 
 def _plot_gradcam_subject(
@@ -395,57 +543,170 @@ def _plot_gradcam_subject(
     pet_heatmap: np.ndarray,
     true_label: str,
     pred_label: str,
+    confidence: float,
     output_path: Path,
     svg_output_path: Path,
 ) -> None:
-    fig, axes = plt.subplots(2, 3, figsize=(14, 9), dpi=180)
-    fig.suptitle(
-        f"{subject_id} Multimodal Grad-CAM\nTrue: {true_label} | Predicted: {pred_label} | Exploratory only",
-        fontsize=16,
-        weight="bold",
-    )
-
     mri_slices = _extract_orthogonal_slices(mri_volume, mri_heatmap)
     pet_slices = _extract_orthogonal_slices(pet_volume, pet_heatmap)
+    fig, axes = plt.subplots(2, 3, figsize=GRADCAM_FIGSIZE, dpi=FIGURE_DPI)
+    fig.suptitle(
+        f"{subject_id}  |  True: {true_label}  |  Pred: {pred_label}  |  p={confidence:.2f}",
+        fontsize=15,
+        y=0.98,
+    )
+
     rows = [("MRI", mri_slices), ("PET", pet_slices)]
     overlay_mappable = None
+    crop_boxes = [
+        _brain_crop_box(image_slice)
+        for _view_name, image_slice, _heatmap_slice in mri_slices
+    ]
 
     for row_index, (row_name, slices) in enumerate(rows):
         for col_index, (view_name, image_slice, heatmap_slice) in enumerate(slices):
             ax = axes[row_index, col_index]
-            ax.imshow(image_slice, cmap="gray")
-            overlay_mappable = ax.imshow(heatmap_slice, cmap="inferno", alpha=0.45, vmin=0.0, vmax=1.0)
-            ax.set_title(f"{row_name} {view_name}", fontsize=12)
+            image_crop, heatmap_crop = _crop_paired_slice(image_slice, heatmap_slice, crop_boxes[col_index])
+            normalized_image = _robust_normalize(image_crop)
+            cleaned_heatmap = _threshold_slice_heatmap(heatmap_crop, normalized_image)
+            ax.imshow(normalized_image, cmap="gray", vmin=0.0, vmax=1.0, interpolation="bilinear")
+            overlay_mappable = ax.imshow(
+                cleaned_heatmap,
+                cmap="inferno",
+                alpha=np.where(cleaned_heatmap > 0, 0.60, 0.0),
+                vmin=0.0,
+                vmax=1.0,
+                interpolation="bilinear",
+            )
+            ax.set_title(f"{row_name} {view_name}", fontsize=11, pad=6)
             ax.axis("off")
 
-    cbar = fig.colorbar(overlay_mappable, ax=axes.ravel().tolist(), fraction=0.025, pad=0.02)
-    cbar.set_label("Grad-CAM activation", fontsize=11)
-    fig.tight_layout(rect=(0, 0, 0.96, 0.94))
-    fig.savefig(output_path, bbox_inches="tight")
-    fig.savefig(svg_output_path, bbox_inches="tight")
+    cbar = fig.colorbar(overlay_mappable, ax=axes, fraction=0.022, pad=0.015)
+    cbar.set_label("Normalized Grad-CAM activation", fontsize=10)
+    fig.subplots_adjust(left=0.03, right=0.93, bottom=0.04, top=0.91, wspace=0.04, hspace=0.10)
+    fig.savefig(output_path, bbox_inches="tight", facecolor="white")
+    fig.savefig(svg_output_path, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
 
 def _extract_orthogonal_slices(
     volume: np.ndarray, heatmap: np.ndarray
 ) -> list[tuple[str, np.ndarray, np.ndarray]]:
-    max_index = np.unravel_index(int(np.argmax(heatmap)), heatmap.shape)
+    sagittal_idx = _fixed_slice_index(volume, "Sagittal")
+    coronal_idx = _fixed_slice_index(volume, "Coronal")
+    axial_idx = _fixed_slice_index(volume, "Axial")
     sagittal = (
         "Sagittal",
-        np.rot90(volume[max_index[0], :, :]),
-        np.rot90(heatmap[max_index[0], :, :]),
+        np.rot90(volume[sagittal_idx, :, :]),
+        np.rot90(heatmap[sagittal_idx, :, :]),
     )
     coronal = (
         "Coronal",
-        np.rot90(volume[:, max_index[1], :]),
-        np.rot90(heatmap[:, max_index[1], :]),
+        np.rot90(volume[:, coronal_idx, :]),
+        np.rot90(heatmap[:, coronal_idx, :]),
     )
     axial = (
         "Axial",
-        np.rot90(volume[:, :, max_index[2]]),
-        np.rot90(heatmap[:, :, max_index[2]]),
+        np.rot90(volume[:, :, axial_idx]),
+        np.rot90(heatmap[:, :, axial_idx]),
     )
     return [sagittal, coronal, axial]
+
+
+def _fixed_slice_index(volume: np.ndarray, view_name: str) -> int:
+    axis = {"Sagittal": 0, "Coronal": 1, "Axial": 2}[view_name]
+    size = volume.shape[axis]
+    fraction = GRADCAM_SLICE_FRACTIONS[view_name]
+    return max(0, min(size - 1, int(round((size - 1) * fraction))))
+
+
+def _robust_normalize(image: np.ndarray) -> np.ndarray:
+    low, high = np.percentile(image, [1.0, 99.0])
+    if math.isclose(high, low):
+        return np.zeros_like(image)
+    normalized = np.clip((image - low) / (high - low), 0.0, 1.0)
+    return normalized
+
+
+def _threshold_slice_heatmap(heatmap: np.ndarray, brain_image: np.ndarray) -> np.ndarray:
+    normalized = heatmap.astype(np.float32).copy()
+    if float(normalized.max()) > 0:
+        normalized = normalized / float(normalized.max())
+    normalized = gaussian_filter(normalized, sigma=0.65)
+    soft_mask = np.clip((brain_image - 0.05) / 0.30, 0.0, 1.0)
+    normalized *= soft_mask
+    positive = normalized[soft_mask > 0.05]
+    threshold = float(np.percentile(positive, 80.0)) if positive.size > 0 else 1.0
+    cleaned = np.where(normalized >= threshold, normalized, 0.0)
+    cleaned = gaussian_filter(cleaned, sigma=0.55)
+    cleaned *= soft_mask
+    max_value = float(cleaned.max())
+    if max_value > 0:
+        cleaned = cleaned / max_value
+    return cleaned
+
+
+def _crop_paired_slice(
+    image_slice: np.ndarray,
+    heatmap_slice: np.ndarray,
+    crop_box: tuple[int, int, int, int] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    if crop_box is None:
+        crop_box = _brain_crop_box(image_slice)
+    row_start, row_end, col_start, col_end = crop_box
+    return (
+        image_slice[row_start:row_end, col_start:col_end],
+        heatmap_slice[row_start:row_end, col_start:col_end],
+    )
+
+
+def _brain_crop_box(image_slice: np.ndarray) -> tuple[int, int, int, int]:
+    normalized = _robust_normalize(image_slice)
+    mask = normalized > 0.08
+    if not np.any(mask):
+        return (0, image_slice.shape[0], 0, image_slice.shape[1])
+    rows = np.where(mask.any(axis=1))[0]
+    cols = np.where(mask.any(axis=0))[0]
+    margin = 6
+    row_start = max(int(rows[0]) - margin, 0)
+    row_end = min(int(rows[-1]) + margin + 1, image_slice.shape[0])
+    col_start = max(int(cols[0]) - margin, 0)
+    col_end = min(int(cols[-1]) + margin + 1, image_slice.shape[1])
+    return (row_start, row_end, col_start, col_end)
+
+
+def _build_brain_soft_mask(mri_volume: np.ndarray) -> np.ndarray:
+    normalized = _robust_normalize(mri_volume)
+    soft_mask = np.clip((normalized - 0.04) / 0.28, 0.0, 1.0)
+    soft_mask = gaussian_filter(soft_mask, sigma=1.1)
+    return np.clip(soft_mask, 0.0, 1.0)
+
+
+def _draw_class_boundary(ax: plt.Axes, class_coords: np.ndarray, color: str) -> None:
+    if class_coords.shape[0] < 3:
+        return
+    center = class_coords.mean(axis=0)
+    covariance = np.cov(class_coords.T)
+    if covariance.shape != (2, 2) or np.linalg.det(covariance) <= 0:
+        return
+    eigenvalues, eigenvectors = np.linalg.eigh(covariance)
+    order = np.argsort(eigenvalues)[::-1]
+    eigenvalues = eigenvalues[order]
+    eigenvectors = eigenvectors[:, order]
+    angle = np.degrees(np.arctan2(eigenvectors[1, 0], eigenvectors[0, 0]))
+    width, height = 2.6 * np.sqrt(np.maximum(eigenvalues, 1e-8))
+    ellipse = Ellipse(
+        xy=center,
+        width=width,
+        height=height,
+        angle=angle,
+        facecolor=color,
+        edgecolor=color,
+        linewidth=1.4,
+        alpha=0.08,
+        zorder=2,
+    )
+    ax.add_patch(ellipse)
 
 
 def _resolve_module(model: torch.nn.Module, module_path: str) -> torch.nn.Module:
