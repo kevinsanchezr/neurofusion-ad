@@ -31,7 +31,7 @@ training:
   train_split: 0.7
   val_split: 0.15
   test_split: 0.15
-  device: cpu
+  device: auto
   use_class_weights: true
 
 evaluation:

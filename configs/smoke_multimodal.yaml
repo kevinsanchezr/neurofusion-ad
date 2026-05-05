@@ -24,14 +24,14 @@ training:
   model_name: multimodal_fusion
   num_classes: 3
   batch_size: 1
-  epochs: 3
+  epochs: 1
   lr: 0.0001
   weight_decay: 0.0001
   mixed_precision: false
   train_split: 0.7
   val_split: 0.15
   test_split: 0.15
-  device: cpu
+  device: auto
   use_class_weights: true
 
 evaluation:
