@@ -1,0 +1,37 @@
+{
+  "dataset": "ds007561",
+  "status": "completed",
+  "figures": [
+    "reports/figures/evaluation/loss_curves.png",
+    "reports/figures/evaluation/loss_curves.svg",
+    "reports/figures/evaluation/balanced_accuracy_macro_f1.png",
+    "reports/figures/evaluation/balanced_accuracy_macro_f1.svg",
+    "reports/figures/evaluation/confusion_matrices.png",
+    "reports/figures/evaluation/confusion_matrices.svg"
+  ],
+  "roc_curves": {
+    "status": "skipped",
+    "reason": "ROC curves were not generated because the current outputs are multiclass smoke-test summaries without stored class-probability traces, and binary reduction would not be statistically meaningful on this cohort."
+  },
+  "notes": [
+    "All figures are exploratory because the cohort is extremely small and imbalanced.",
+    "Validation and test splits do not contain AD, so per-class conclusions for AD are not possible there."
+  ],
+  "models": {
+    "multimodal": {
+      "experiment_dir": "reports/experiments/ds007561_multimodal_smoke",
+      "completed_epochs": 1,
+      "device": "cuda"
+    },
+    "mri_only": {
+      "experiment_dir": "reports/experiments/ds007561_mri_only_smoke",
+      "completed_epochs": 1,
+      "device": "cuda"
+    },
+    "pet_only": {
+      "experiment_dir": "reports/experiments/ds007561_pet_only_smoke",
+      "completed_epochs": 1,
+      "device": "cuda"
+    }
+  }
+}

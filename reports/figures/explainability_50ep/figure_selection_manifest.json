@@ -1,0 +1,31 @@
+{
+  "selected_subjects": [
+    {
+      "subject_id": "sub-13",
+      "true_label": "Control",
+      "predicted_label": "Control",
+      "confidence": 0.9517098069190979,
+      "selection_reason": "correct_prediction",
+      "figure_png": "reports/figures/explainability_50ep/sub-13_multimodal_gradcam.png",
+      "figure_svg": "reports/figures/explainability_50ep/sub-13_multimodal_gradcam.svg"
+    },
+    {
+      "subject_id": "sub-09",
+      "true_label": "Control",
+      "predicted_label": "Control",
+      "confidence": 0.9391923546791077,
+      "selection_reason": "correct_prediction",
+      "figure_png": "reports/figures/explainability_50ep/sub-09_multimodal_gradcam.png",
+      "figure_svg": "reports/figures/explainability_50ep/sub-09_multimodal_gradcam.svg"
+    },
+    {
+      "subject_id": "sub-16",
+      "true_label": "Control",
+      "predicted_label": "Control",
+      "confidence": 0.9334123730659485,
+      "selection_reason": "correct_prediction",
+      "figure_png": "reports/figures/explainability_50ep/sub-16_multimodal_gradcam.png",
+      "figure_svg": "reports/figures/explainability_50ep/sub-16_multimodal_gradcam.svg"
+    }
+  ]
+}

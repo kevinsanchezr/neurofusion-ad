@@ -1,0 +1,6 @@
+{
+  "figures": [
+    "reports/figures/latent_space_50ep_pet_only/pet_only_pca.png",
+    "reports/figures/latent_space_50ep_pet_only/pet_only_tsne.png"
+  ]
+}

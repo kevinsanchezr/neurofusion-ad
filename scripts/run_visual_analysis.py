@@ -76,6 +76,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-gradcam-subjects", type=int, default=3, help="Max multimodal subjects for Grad-CAM.")
     parser.add_argument("--atlas-image", default=None, help="Optional local atlas image path for future region mapping.")
     parser.add_argument("--atlas-labels", default=None, help="Optional local atlas labels JSON/TSV/TXT path.")
+    parser.add_argument("--config", default=None, help="Optional single-experiment config path.")
+    parser.add_argument("--checkpoint", default=None, help="Optional single-experiment checkpoint path.")
+    parser.add_argument("--modality", default="multimodal", choices=sorted(EXPERIMENTS), help="Modality key for single-experiment mode.")
+    parser.add_argument("--embeddings-dir", default="reports/experiments/embeddings", help="Output directory for embedding files.")
+    parser.add_argument("--latent-dir", default="reports/figures/latent_space", help="Output directory for latent-space figures.")
+    parser.add_argument("--explainability-dir", default="reports/figures/explainability", help="Output directory for explainability figures.")
     return parser.parse_args()
 
 
@@ -85,7 +91,8 @@ def main() -> None:
     _configure_matplotlib()
     embedding_results: dict[str, dict[str, Any]] = {}
 
-    for modality, spec in EXPERIMENTS.items():
+    experiment_specs = _resolve_experiment_specs(args)
+    for modality, spec in experiment_specs.items():
         config = load_config(spec["config"])
         set_seed(config["experiment"]["seed"])
         config["data"]["dataset_root"] = str(resolve_dataset_root(config))
@@ -99,15 +106,34 @@ def main() -> None:
         )
         embedding_results[modality] = result
 
-    _generate_latent_space_figures(embedding_results)
-    _generate_multimodal_gradcam(
-        embedding_results["multimodal"]["config"],
-        checkpoint_path=Path(EXPERIMENTS["multimodal"]["checkpoint"]),
-        device=device,
-        max_subjects=args.max_gradcam_subjects,
-        atlas_image=args.atlas_image,
-        atlas_labels=args.atlas_labels,
-    )
+    _generate_latent_space_figures(embedding_results, Path(args.latent_dir))
+    multimodal_key = "multimodal" if "multimodal" in embedding_results else None
+    if multimodal_key:
+        _generate_multimodal_gradcam(
+            embedding_results[multimodal_key]["config"],
+            checkpoint_path=Path(experiment_specs[multimodal_key]["checkpoint"]),
+            device=device,
+            max_subjects=args.max_gradcam_subjects,
+            atlas_image=args.atlas_image,
+            atlas_labels=args.atlas_labels,
+            output_dir=Path(args.explainability_dir),
+        )
+
+
+def _resolve_experiment_specs(args: argparse.Namespace) -> dict[str, dict[str, str]]:
+    if args.config and args.checkpoint:
+        stem = Path(args.config).stem
+        embeddings_dir = Path(args.embeddings_dir)
+        return {
+            args.modality: {
+                "config": args.config,
+                "model_name": args.modality,
+                "checkpoint": args.checkpoint,
+                "embedding_file": str(embeddings_dir / f"{stem}_{args.modality}_embeddings.npz"),
+                "embedding_manifest": str(embeddings_dir / f"{stem}_{args.modality}_embeddings.json"),
+            }
+        }
+    return EXPERIMENTS
 
 
 def _resolve_device(device_name: str) -> torch.device:
@@ -238,8 +264,8 @@ def _build_inference_dataloader(samples: list[dict[str, Any]], config: dict[str,
     return DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0)
 
 
-def _generate_latent_space_figures(embedding_results: dict[str, dict[str, Any]]) -> None:
-    output_dir = ensure_dir("reports/figures/latent_space")
+def _generate_latent_space_figures(embedding_results: dict[str, dict[str, Any]], output_dir: Path) -> None:
+    output_dir = ensure_dir(output_dir)
     comparison_manifest: dict[str, Any] = {"figures": []}
 
     for modality, payload in embedding_results.items():
@@ -345,8 +371,9 @@ def _generate_multimodal_gradcam(
     max_subjects: int,
     atlas_image: str | None,
     atlas_labels: str | None,
+    output_dir: Path,
 ) -> None:
-    output_dir = ensure_dir("reports/figures/explainability")
+    output_dir = ensure_dir(output_dir)
     figure_manifest: dict[str, Any] = {"selected_subjects": []}
     splits = create_data_splits(config)
     selected_samples = _select_gradcam_samples(

@@ -1,0 +1,6 @@
+{
+  "figures": [
+    "reports/figures/latent_space_50ep/multimodal_pca.png",
+    "reports/figures/latent_space_50ep/multimodal_tsne.png"
+  ]
+}

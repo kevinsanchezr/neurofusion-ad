@@ -1,0 +1,6 @@
+{
+  "figures": [
+    "reports/figures/latent_space_50ep_mri_only/mri_only_pca.png",
+    "reports/figures/latent_space_50ep_mri_only/mri_only_tsne.png"
+  ]
+}
