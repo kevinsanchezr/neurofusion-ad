@@ -23,17 +23,23 @@ Methodologically, this is strong overfitting. Optimization succeeded; generaliza
 ## Evaluation Figures
 
 - Multimodal:
-  [loss_curves.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep/loss_curves.png),
-  [balanced_accuracy_macro_f1.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep/balanced_accuracy_macro_f1.png),
-  [confusion_matrices.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep/confusion_matrices.png)
+  [loss_curves.png](figures/evaluation_50ep/loss_curves.png),
+  [balanced_accuracy_macro_f1.png](figures/evaluation_50ep/balanced_accuracy_macro_f1.png),
+  [confusion_matrices.png](figures/evaluation_50ep/confusion_matrices.png)
 - MRI-only:
-  [loss_curves.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep_mri_only/loss_curves.png),
-  [balanced_accuracy_macro_f1.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep_mri_only/balanced_accuracy_macro_f1.png),
-  [confusion_matrices.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep_mri_only/confusion_matrices.png)
+  [loss_curves.png](figures/evaluation_50ep_mri_only/loss_curves.png),
+  [balanced_accuracy_macro_f1.png](figures/evaluation_50ep_mri_only/balanced_accuracy_macro_f1.png),
+  [confusion_matrices.png](figures/evaluation_50ep_mri_only/confusion_matrices.png)
 - PET-only:
-  [loss_curves.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep_pet_only/loss_curves.png),
-  [balanced_accuracy_macro_f1.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep_pet_only/balanced_accuracy_macro_f1.png),
-  [confusion_matrices.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/evaluation_50ep_pet_only/confusion_matrices.png)
+  [loss_curves.png](figures/evaluation_50ep_pet_only/loss_curves.png),
+  [balanced_accuracy_macro_f1.png](figures/evaluation_50ep_pet_only/balanced_accuracy_macro_f1.png),
+  [confusion_matrices.png](figures/evaluation_50ep_pet_only/confusion_matrices.png)
+
+Preview:
+
+![Multimodal evaluation curves](figures/evaluation_50ep/balanced_accuracy_macro_f1.png)
+![MRI-only evaluation curves](figures/evaluation_50ep_mri_only/balanced_accuracy_macro_f1.png)
+![PET-only evaluation curves](figures/evaluation_50ep_pet_only/balanced_accuracy_macro_f1.png)
 
 ## Confusion Matrices
 
@@ -49,24 +55,28 @@ That pattern confirms memorization of the training split and failure to recover 
 
 - Multimodal:
   PCA variance `0.6224, 0.1935`; centroid distances `AD_vs_Control=6.0586`, `AD_vs_MCI=4.5314`, `Control_vs_MCI=2.1942`
-  Figures: [multimodal_pca.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep/multimodal_pca.png) and [multimodal_tsne.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep/multimodal_tsne.png)
+  Figures: [multimodal_pca.png](figures/latent_space_50ep/multimodal_pca.png) and [multimodal_tsne.png](figures/latent_space_50ep/multimodal_tsne.png)
 - MRI-only:
   PCA variance `0.6637, 0.2729`; centroid distances `AD_vs_Control=0.8437`, `AD_vs_MCI=1.3413`, `Control_vs_MCI=1.9018`
-  Figures: [mri_only_pca.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_mri_only/mri_only_pca.png) and [mri_only_tsne.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_mri_only/mri_only_tsne.png)
+  Figures: [mri_only_pca.png](figures/latent_space_50ep_mri_only/mri_only_pca.png) and [mri_only_tsne.png](figures/latent_space_50ep_mri_only/mri_only_tsne.png)
 - PET-only:
   PCA variance `0.6079, 0.3345`; centroid distances `AD_vs_Control=1.7013`, `AD_vs_MCI=1.4548`, `Control_vs_MCI=1.5652`
-  Figures: [pet_only_pca.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_pet_only/pet_only_pca.png) and [pet_only_tsne.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_pet_only/pet_only_tsne.png)
+  Figures: [pet_only_pca.png](figures/latent_space_50ep_pet_only/pet_only_pca.png) and [pet_only_tsne.png](figures/latent_space_50ep_pet_only/pet_only_tsne.png)
 
 ## Explainability
 
 Grad-CAM visualizations are available only for the multimodal model in the current project state. They use MRI-derived brain masking, percentile thresholding, Gaussian smoothing, consistent cropping, and aligned MRI/PET overlays.
 
-- [sub-09_multimodal_gradcam.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-09_multimodal_gradcam.png)
-- [sub-09_multimodal_gradcam.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-09_multimodal_gradcam.svg)
-- [sub-13_multimodal_gradcam.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-13_multimodal_gradcam.png)
-- [sub-13_multimodal_gradcam.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-13_multimodal_gradcam.svg)
-- [sub-16_multimodal_gradcam.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-16_multimodal_gradcam.png)
-- [sub-16_multimodal_gradcam.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-16_multimodal_gradcam.svg)
+- [sub-09_multimodal_gradcam.png](figures/explainability_50ep/sub-09_multimodal_gradcam.png)
+- [sub-09_multimodal_gradcam.svg](figures/explainability_50ep/sub-09_multimodal_gradcam.svg)
+- [sub-13_multimodal_gradcam.png](figures/explainability_50ep/sub-13_multimodal_gradcam.png)
+- [sub-13_multimodal_gradcam.svg](figures/explainability_50ep/sub-13_multimodal_gradcam.svg)
+- [sub-16_multimodal_gradcam.png](figures/explainability_50ep/sub-16_multimodal_gradcam.png)
+- [sub-16_multimodal_gradcam.svg](figures/explainability_50ep/sub-16_multimodal_gradcam.svg)
+
+Preview:
+
+![sub-09 multimodal Grad-CAM](figures/explainability_50ep/sub-09_multimodal_gradcam.png)
 
 These maps remain exploratory and should not be treated as clinical anatomical evidence.
 

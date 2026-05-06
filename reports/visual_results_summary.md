@@ -1,6 +1,6 @@
 # Visual Results Summary
 
-This visual analysis phase is exploratory and should be read together with the final 50-epoch comparison in [ds007561_50ep_model_comparison.md](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/ds007561_50ep_model_comparison.md). The `ds007561` cohort is small and strongly imbalanced, with only one `AD` subject, so the figures below are research inspection outputs for representation analysis and model debugging, not clinical evidence.
+This visual analysis phase is exploratory and should be read together with the final 50-epoch comparison in [ds007561_50ep_model_comparison.md](ds007561_50ep_model_comparison.md). The `ds007561` cohort is small and strongly imbalanced, with only one `AD` subject, so the figures below are research inspection outputs for representation analysis and model debugging, not clinical evidence.
 
 ## Latent Space
 
@@ -11,18 +11,25 @@ The final latent-space figures summarize subject embeddings extracted from the `
 - Because of the small cohort and class imbalance, apparent separation or overlap should be treated as exploratory only.
 
 Reference files:
-- [multimodal_pca.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep/multimodal_pca.png)
-- [multimodal_pca.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep/multimodal_pca.svg)
-- [multimodal_tsne.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep/multimodal_tsne.png)
-- [multimodal_tsne.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep/multimodal_tsne.svg)
-- [mri_only_pca.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_mri_only/mri_only_pca.png)
-- [mri_only_pca.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_mri_only/mri_only_pca.svg)
-- [mri_only_tsne.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_mri_only/mri_only_tsne.png)
-- [mri_only_tsne.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_mri_only/mri_only_tsne.svg)
-- [pet_only_pca.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_pet_only/pet_only_pca.png)
-- [pet_only_pca.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_pet_only/pet_only_pca.svg)
-- [pet_only_tsne.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_pet_only/pet_only_tsne.png)
-- [pet_only_tsne.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/latent_space_50ep_pet_only/pet_only_tsne.svg)
+- [multimodal_pca.png](figures/latent_space_50ep/multimodal_pca.png)
+- [multimodal_pca.svg](figures/latent_space_50ep/multimodal_pca.svg)
+- [multimodal_tsne.png](figures/latent_space_50ep/multimodal_tsne.png)
+- [multimodal_tsne.svg](figures/latent_space_50ep/multimodal_tsne.svg)
+- [mri_only_pca.png](figures/latent_space_50ep_mri_only/mri_only_pca.png)
+- [mri_only_pca.svg](figures/latent_space_50ep_mri_only/mri_only_pca.svg)
+- [mri_only_tsne.png](figures/latent_space_50ep_mri_only/mri_only_tsne.png)
+- [mri_only_tsne.svg](figures/latent_space_50ep_mri_only/mri_only_tsne.svg)
+- [pet_only_pca.png](figures/latent_space_50ep_pet_only/pet_only_pca.png)
+- [pet_only_pca.svg](figures/latent_space_50ep_pet_only/pet_only_pca.svg)
+- [pet_only_tsne.png](figures/latent_space_50ep_pet_only/pet_only_tsne.png)
+- [pet_only_tsne.svg](figures/latent_space_50ep_pet_only/pet_only_tsne.svg)
+
+Preview:
+
+![Multimodal PCA](figures/latent_space_50ep/multimodal_pca.png)
+![Multimodal t-SNE](figures/latent_space_50ep/multimodal_tsne.png)
+![MRI-only PCA](figures/latent_space_50ep_mri_only/mri_only_pca.png)
+![PET-only PCA](figures/latent_space_50ep_pet_only/pet_only_pca.png)
 
 ## Refined Grad-CAM
 
@@ -37,13 +44,19 @@ Refinements applied:
 These overlays are therefore more suitable for exploratory model inspection than the earlier raw outputs. Even so, they remain model-derived activation summaries, not anatomical ground truth and not clinical biomarkers.
 
 Reference files:
-- [sub-09_multimodal_gradcam.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-09_multimodal_gradcam.png)
-- [sub-09_multimodal_gradcam.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-09_multimodal_gradcam.svg)
-- [sub-13_multimodal_gradcam.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-13_multimodal_gradcam.png)
-- [sub-13_multimodal_gradcam.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-13_multimodal_gradcam.svg)
-- [sub-16_multimodal_gradcam.png](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-16_multimodal_gradcam.png)
-- [sub-16_multimodal_gradcam.svg](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/sub-16_multimodal_gradcam.svg)
-- [figure_selection_manifest.json](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/figure_selection_manifest.json)
+- [sub-09_multimodal_gradcam.png](figures/explainability_50ep/sub-09_multimodal_gradcam.png)
+- [sub-09_multimodal_gradcam.svg](figures/explainability_50ep/sub-09_multimodal_gradcam.svg)
+- [sub-13_multimodal_gradcam.png](figures/explainability_50ep/sub-13_multimodal_gradcam.png)
+- [sub-13_multimodal_gradcam.svg](figures/explainability_50ep/sub-13_multimodal_gradcam.svg)
+- [sub-16_multimodal_gradcam.png](figures/explainability_50ep/sub-16_multimodal_gradcam.png)
+- [sub-16_multimodal_gradcam.svg](figures/explainability_50ep/sub-16_multimodal_gradcam.svg)
+- [figure_selection_manifest.json](figures/explainability_50ep/figure_selection_manifest.json)
+
+Preview:
+
+![sub-09 multimodal Grad-CAM](figures/explainability_50ep/sub-09_multimodal_gradcam.png)
+![sub-13 multimodal Grad-CAM](figures/explainability_50ep/sub-13_multimodal_gradcam.png)
+![sub-16 multimodal Grad-CAM](figures/explainability_50ep/sub-16_multimodal_gradcam.png)
 
 ## Atlas Labeling Status
 
@@ -52,4 +65,4 @@ Atlas-based anatomical labeling was intentionally skipped. No registered atlas i
 For that reason, the activation maps should be treated as exploratory visual evidence of model focus only. They are not anatomical proof and should not be interpreted as clinical localization findings.
 
 Reference:
-- [atlas_region_summary.json](/home/kevin/Projects/python/neurodegenerative-pet-mri-ai/reports/figures/explainability_50ep/atlas_region_summary.json)
+- [atlas_region_summary.json](figures/explainability_50ep/atlas_region_summary.json)
