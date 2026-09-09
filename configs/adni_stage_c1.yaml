@@ -1,0 +1,57 @@
+stage: C1_representative_validation
+subjects:
+  standard_cn: 005_S_0223
+  standard_mci: 005_S_0222
+  standard_ad: 005_S_0221
+  limited_coverage_pet: 009_S_1199
+  adni2_pet_dicom: 153_S_4172
+template:
+  id: MNI152NLin2009cAsym
+  source: TemplateFlow 25.1.2
+  resolution_mm: 2
+  t1w: data/derived/adni/stage_c1/templateflow/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-02_desc-brain_T1w.nii.gz
+  head_t1w: data/derived/adni/stage_c1/templateflow/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-02_T1w.nii.gz
+  brain_mask: data/derived/adni/stage_c1/templateflow/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-02_desc-brain_mask.nii.gz
+mri:
+  canonical_orientation: RAS
+  canonical_method: nibabel.as_closest_canonical
+  n4:
+    shrink_factor: 4
+    convergence_iterations: [50, 50, 30, 20]
+    tolerance: 1.0e-7
+    rescale_intensities: false
+  brain_extraction:
+    method: ANTs affine template-mask inverse propagation
+    initial_registration: AffineFast
+    mask_interpolator: nearestNeighbor
+  mni_registration:
+    transform: SyN
+    metric: Mattes mutual information
+    syn_iterations: [40, 20, 0]
+    random_seed: 20260906
+pet:
+  motion:
+    transform: Rigid
+    reference: temporal mean computed in memory by ANTs
+    interpolation: linear
+    fd_offset_mm: 50
+  temporal_average: after_motion_correction_only
+  pet_to_mri:
+    transform: Rigid
+    metric: Mattes mutual information
+    interpolation: linear
+  pet_to_mni:
+    transform_chain: [pet_to_mri_rigid, mri_to_mni_affine, mri_to_mni_warp]
+    interpolation: linear
+    resampling_passes: 1
+qc:
+  mask_interpolation: nearestNeighbor
+  pass_requirements: [finite_values, valid_affine, nonempty, positive_transform_determinants, acceptable_overlap_and_MI, visual_plausibility]
+resolution_comparison:
+  primary: MNI152NLin2009cAsym_2mm_97x115x97
+  alternative: same_MNI_field_of_view_2.5mm_78x92x78
+intensity_policy:
+  preserve_preprocessed_relative_intensities: true
+  cohort_normalization: prohibited_before_splits
+  suv: not_computed_missing_reliable_dose_timing
+  suvr: deferred_pending_reference_region_segmentation_validation

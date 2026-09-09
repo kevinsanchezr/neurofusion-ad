@@ -1,0 +1,27 @@
+stage: C1-R2
+random_seed: 20260909
+itk_threads: 1
+template: MNI152NLin2009cAsym_res-02
+fixed: MNI_brain
+moving: subject_T1w_RAS_N4_SynthStrip_brain
+fixed_mask: MNI_brain_mask
+moving_mask: SynthStrip_mask
+mask_all_stages: true
+linear_metric: mattes_mutual_information
+linear_bins: 32
+linear_sampling_rate: 0.2
+deformable_metric: cross_correlation
+deformable_radius: 4
+syn_iterations: [40, 20, 0]
+strategies:
+  baseline_syn: implicit_COM_affine_SyN
+  staged_com_rigid_affine_syn: explicit_COM_Rigid_Affine_SyNOnly
+  standard_synra: one_call_SyNRA
+interpolation:
+  intensity: linear
+  mask: nearestNeighbor
+alert_dice: 0.80
+primary_subjects: [005_S_0223, 005_S_0222, 005_S_0221, 009_S_1199, 153_S_4172]
+extension_selection: deterministic_first_and_last_native_geometry_per_group_then_subject_id
+extension_subjects: [011_S_0005, 024_S_0985, 011_S_0326, 024_S_1400, 011_S_0003, 094_S_1164]
+stage_c2: false

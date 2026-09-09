@@ -1,0 +1,45 @@
+stage: C1-R1
+subjects:
+  - [005_S_0223, CN, standard_ECAT7]
+  - [005_S_0222, MCI, standard_ECAT7]
+  - [005_S_0221, AD, standard_ECAT7]
+  - [009_S_1199, MCI, PET_47_slice_exception]
+  - [153_S_4172, AD, ADNI2_PET_DICOM_LAS_exception]
+template:
+  id: MNI152NLin2009cAsym
+  resolution_mm: 2
+  shape: [97, 115, 97]
+  t1w: data/derived/adni/stage_c1/templateflow/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-02_T1w.nii.gz
+  brain_t1w: data/derived/adni/stage_c1/templateflow/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-02_desc-brain_T1w.nii.gz
+  brain_mask: data/derived/adni/stage_c1/templateflow/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-02_desc-brain_mask.nii.gz
+synthstrip:
+  distribution: official_Docker_Hub
+  image: freesurfer/synthstrip:1.8
+  image_digest: sha256:ebbc177221194371f16362513ace68312a22922bb581bdfa618ac7ff9c1d2c06
+  model: synthstrip.1.pt
+  model_sha256: 37417f802196186441aae3e7f385d94f8a98c64a88acaeaa2723af995c653e33
+  boundary_mm: 1
+  no_csf: false
+mri:
+  canonical_orientation: RAS
+  n4:
+    shrink_factor: 4
+    convergence_iters: [50, 50, 30, 20]
+    tolerance: 1.0e-7
+    rescale_intensities: false
+  mri_to_mni:
+    transform: SyN
+    reg_iterations: [40, 20, 0]
+    interpolation: linear
+pet:
+  motion_transform: Rigid
+  fd_offset_mm: 50
+  temporal_average: after_motion_correction_only
+  pet_to_mri_transform: Rigid
+  continuous_interpolation: linear
+  mask_interpolation: nearestNeighbor
+  pet_to_mni_resampling: single_composed_application
+random_seed: 20260906
+cohort_intensity_normalization: false
+subject_specific_morphology: false
+stage_c2: false
