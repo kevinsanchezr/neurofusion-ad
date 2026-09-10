@@ -5,7 +5,7 @@ import csv,hashlib,json,math,stat,time
 from collections import Counter
 import numpy as np,nibabel as nib
 from sklearn.model_selection import StratifiedKFold
-R=Path(__file__).resolve().parents[1];D=R/'data/derived/adni/stage_d/v1';C2=R/'data/derived/adni/stage_c2';MAN=R/'data/derived/adni/adni_c2_manifest.csv';CONF=R/'configs/adni_stage_d.yaml';REPORTS=R/'reports'
+R=Path(__file__).resolve().parents[1];D=R/'data/derived/adni/stage_d/v1';C2=R/'data/derived/adni/stage_c2';FROZEN=D/'FROZEN.json';MAN=R/'data/derived/adni/adni_c2_manifest.csv';CONF=R/'configs/adni_stage_d.yaml';REPORTS=R/'reports'
 SEEDS=[20260910,20261007,20261103];SHAPE=(97,115,97)
 def sha(p):
  h=hashlib.sha256()
@@ -22,6 +22,7 @@ def stats(a,mask):
 def save_like(src,a,p):
  im=nib.load(src);h=im.header.copy();h.set_data_dtype(np.float32);out=nib.Nifti1Image(a.astype(np.float32),im.affine,h);out.set_qform(im.get_qform(),int(im.header['qform_code']));out.set_sform(im.get_sform(),int(im.header['sform_code']));p.parent.mkdir(parents=True,exist_ok=True);nib.save(out,p)
 def main():
+ if FROZEN.exists():raise RuntimeError(f'Refusing to overwrite frozen Stage D: {FROZEN}')
  frozen=json.loads((C2/'FROZEN.json').read_text())
  if frozen['status']!='FROZEN_QC_ACCEPTED' or frozen['subjects']!=54:raise RuntimeError('C2 is not frozen/complete')
  ledger=list(csv.DictReader((C2/'frozen_pairs_sha256.csv').open()))
