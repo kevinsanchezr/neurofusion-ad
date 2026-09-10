@@ -1,0 +1,50 @@
+stage: D
+version: "1.0"
+status: approved_no_training
+c2_frozen_marker: data/derived/adni/stage_c2/FROZEN.json
+c2_hash_ledger: data/derived/adni/stage_c2/frozen_pairs_sha256.csv
+geometry:
+  template: MNI152NLin2009cAsym
+  spacing_mm: [2, 2, 2]
+  shape: [97, 115, 97]
+  orientation: RAS
+  dtype: float32
+splits:
+  design: nested_stratified_subject_level
+  outer_folds: 3
+  inner_folds: 3
+  repeats: 3
+  repeat_seeds: [20260910, 20261007, 20261103]
+  inner_seed_rule: repeat_seed + 1000 * (outer_fold + 1)
+  stratify: group
+  group_key: subject_id
+  external_test_use_for_selection: forbidden
+normalization:
+  mri:
+    - id: mri_robust_z
+      scope: subject_mask
+      center: median
+      scale: IQR
+      clipping: [-8, 8]
+    - id: mri_percentile01
+      scope: subject_mask
+      percentiles: [0.5, 99.5]
+      output_range: [0, 1]
+  pet:
+    - id: pet_relative_robust
+      scope: subject_mask
+      percentiles: [1, 99]
+      output_range: [0, 1]
+    - id: pet_whole_brain_mean
+      scope: subject_mask
+      denominator: positive_voxel_mean
+    - id: pet_reference_suvr
+      materialize: false
+      status: pending_anatomical_roi_coverage_validation
+      candidate_references: [pons, cerebellum]
+selection:
+  allowed_scope: inner_training_only
+  external_test_blinding: required
+  variants_are_unselected: true
+training:
+  enabled: false

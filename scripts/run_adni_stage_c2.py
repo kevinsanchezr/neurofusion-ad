@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 R=Path(__file__).resolve().parents[1];NATIVE=R/'data/derived/adni/nifti_native';MAN=R/'data/derived/adni/adni_native_manifest.csv'
 BASE=R/'data/derived/adni/stage_c2';OUT=BASE/'subjects';FIG=R/'reports/figures/adni_stage_c2';QC=R/'reports/adni_stage_c2_qc.csv';CONF=R/'configs/adni_stage_c2.yaml'
+FROZEN=BASE/'FROZEN.json'
 TPL=R/'data/derived/adni/stage_c1/templateflow/tpl-MNI152NLin2009cAsym';HEAD=TPL/'tpl-MNI152NLin2009cAsym_res-02_T1w.nii.gz';BRAIN=TPL/'tpl-MNI152NLin2009cAsym_res-02_desc-brain_T1w.nii.gz';MASK=TPL/'tpl-MNI152NLin2009cAsym_res-02_desc-brain_mask.nii.gz'
 IMAGE='freesurfer/synthstrip:1.8';DIGEST='sha256:ebbc177221194371f16362513ace68312a22922bb581bdfa618ac7ff9c1d2c06'
 def sha(p):
@@ -89,6 +90,7 @@ def collect():
  return rows
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--subject');args=ap.parse_args();m=pd.read_csv(MAN);subs=sorted(m.subject_id.unique())
+ if FROZEN.exists():raise RuntimeError(f'Stage C2 is frozen: {FROZEN}. Refusing to overwrite outputs.')
  if len(subs)!=54:raise RuntimeError('manifest is not 54 subjects')
  if args.subject:
   if args.subject not in subs:raise ValueError(args.subject)
