@@ -1,0 +1,45 @@
+stage: C2
+inherits: configs/adni_stage_c1_r2.yaml
+selected_registration: standard_synra
+random_seed: 20260909
+itk_threads: 1
+template: MNI152NLin2009cAsym_res-02
+output_shape: [97, 115, 97]
+output_spacing_mm: [2, 2, 2]
+registration:
+  fixed: MNI_brain
+  moving: subject_T1w_RAS_N4_SynthStrip_brain
+  fixed_and_moving_masks: true
+  mask_all_stages: true
+  linear_metric: mattes
+  linear_bins: 32
+  linear_sampling_rate: 0.2
+  deformable_metric: CC
+  deformable_radius: 4
+  syn_iterations: [40, 20, 0]
+synthstrip:
+  image: freesurfer/synthstrip:1.8
+  digest: sha256:ebbc177221194371f16362513ace68312a22922bb581bdfa618ac7ff9c1d2c06
+  boundary_mm: 1
+pet:
+  motion_transform: Rigid
+  fd_offset_mm: 50
+  temporal_average: after_motion_only
+  pet_to_mri: Rigid
+  pet_to_mni_resampling_count: 1
+interpolation:
+  continuous: linear
+  mask: nearestNeighbor
+qc:
+  dice_alert: 0.80
+  brain_volume_ml: [700, 1900]
+  require_positive_affine_determinant: true
+  require_positive_jacobian: true
+  require_finite_nonempty: true
+  stop_on_fail: true
+exceptions:
+  009_S_1199: PET_47_slice_limited_native_coverage
+  153_S_4172: ADNI2_PET_DICOM_LAS_protocol_exception
+pet_normalization: false
+splits: false
+training: false
